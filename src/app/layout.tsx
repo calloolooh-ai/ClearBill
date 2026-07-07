@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
+import { Toaster } from "sonner";
 import "./globals.css";
 import { ThemeProvider } from "@/components/shared/theme-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -37,6 +38,7 @@ export default function RootLayout({
           <TooltipProvider>
             <Navbar />
             <main className="flex-1">{children}</main>
+            <Toaster richColors position="top-center" />
           </TooltipProvider>
         </ThemeProvider>
       </body>
