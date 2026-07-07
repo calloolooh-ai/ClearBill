@@ -1,7 +1,7 @@
 import { generateId } from "@/utils/id";
 import type { BillDocument, ParseResult } from "@/types/bill";
 import { extractPdfText } from "./pdfExtractor";
-import { extractImageText } from "./ocrExtractor";
+import { extractImageText, isLowResolution } from "./ocrExtractor";
 import {
   extractProvider,
   extractDueDate,
@@ -33,15 +33,22 @@ export async function parseBill(input: ParseInput): Promise<ParseResult> {
   }
 
   let rawText: string;
+  const warnings: string[] = [];
   try {
-    rawText = sourceType === "pdf"
-      ? await extractPdfText(input.buffer)
-      : await extractImageText(input.buffer);
+    if (sourceType === "pdf") {
+      rawText = await extractPdfText(input.buffer);
+    } else {
+      if (await isLowResolution(input.buffer)) {
+        warnings.push(
+          "This image is very low resolution, so OCR text extraction may be inaccurate. Try uploading a higher-resolution photo or scan.",
+        );
+      }
+      rawText = await extractImageText(input.buffer);
+    }
   } catch (err) {
     return { success: false, error: `Text extraction failed: ${(err as Error).message}` };
   }
 
-  const warnings: string[] = [];
   const provider = extractProvider(rawText);
   if (!provider) warnings.push("Could not confidently identify the provider name.");
 
