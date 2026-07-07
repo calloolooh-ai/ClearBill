@@ -98,14 +98,14 @@ export default function ComparePage() {
       {result && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-12 space-y-8">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-            <Card className="rounded-3xl border-border/60">
+            <Card className="rounded-3xl">
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground">Month-over-month change</p>
                 <p className="mt-1 text-2xl font-semibold">{formatCurrency(result.monthlyChange)}</p>
                 <p className="text-sm text-muted-foreground">{formatPercent(result.monthlyPercentChange)}</p>
               </CardContent>
             </Card>
-            <Card className="rounded-3xl border-border/60">
+            <Card className="rounded-3xl">
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground">Biggest increase</p>
                 {result.biggestIncreases[0] ? (
@@ -120,7 +120,7 @@ export default function ComparePage() {
                 )}
               </CardContent>
             </Card>
-            <Card className="rounded-3xl border-border/60">
+            <Card className="rounded-3xl">
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground">Next month estimate</p>
                 {(() => {
@@ -136,14 +136,14 @@ export default function ComparePage() {
             </Card>
           </div>
 
-          <Card className="rounded-3xl border-border/60">
+          <Card className="rounded-3xl">
             <CardContent className="p-6">
               <h3 className="mb-2 text-lg font-medium tracking-tight">Bill history</h3>
               <BillHistoryLineChart bills={result.bills} />
             </CardContent>
           </Card>
 
-          <Card className="rounded-3xl border-border/60">
+          <Card className="rounded-3xl">
             <CardContent className="p-6">
               <h3 className="mb-2 text-lg font-medium tracking-tight">Category comparison</h3>
               <ChargeComparisonChart changes={result.categoryChanges} />

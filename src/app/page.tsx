@@ -9,22 +9,26 @@ import { useBillUpload } from "@/hooks/useBillUpload";
 import { useBillStore } from "@/hooks/useBillStore";
 import { getSampleBundle } from "@/lib/sampleBill";
 import { findDuplicateBundle } from "@/lib/billStorage";
+import { cn } from "@/lib/utils";
 
 const FEATURES = [
   {
     icon: Sparkles,
     title: "AI-explained charges",
     description: "Every line item explained in plain English — never invented, never guessed.",
+    accent: "bg-primary/15 text-primary",
   },
   {
     icon: ShieldAlert,
     title: "Fee alerts",
     description: "Automatically flags late fees, admin fees, duplicates, and unexpected increases.",
+    accent: "bg-destructive/15 text-destructive",
   },
   {
     icon: LineChart,
     title: "Compare over time",
     description: "Upload multiple bills to see totals, categories, and month-over-month changes.",
+    accent: "bg-accent text-accent-foreground",
   },
 ];
 
@@ -109,12 +113,15 @@ export default function HomePage() {
         transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
         className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-3"
       >
-        {FEATURES.map(({ icon: Icon, title, description }) => (
-          <div key={title} className="rounded-2xl border border-border/60 p-5 text-center">
-            <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+        {FEATURES.map(({ icon: Icon, title, description, accent }) => (
+          <div
+            key={title}
+            className="rounded-2xl border-2 border-foreground bg-card p-5 text-center shadow-[4px_4px_0_0_var(--foreground)]"
+          >
+            <div className={cn("mx-auto flex size-10 items-center justify-center rounded-full", accent)}>
               <Icon className="size-5" />
             </div>
-            <p className="mt-3 font-medium tracking-tight">{title}</p>
+            <p className="mt-3 font-heading font-semibold tracking-tight">{title}</p>
             <p className="mt-1 text-sm text-muted-foreground">{description}</p>
           </div>
         ))}

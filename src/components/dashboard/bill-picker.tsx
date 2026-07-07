@@ -20,7 +20,7 @@ export function BillPicker({ bundles, selectedIds, onToggle }: BillPickerProps) 
       {bundles.map((bundle) => (
         <label
           key={bundle.document.id}
-          className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border border-border/60 p-4 transition hover:bg-accent/40"
+          className="flex cursor-pointer items-center justify-between gap-4 rounded-2xl border p-4 transition hover:bg-accent/40"
         >
           <div className="flex items-center gap-3">
             <Checkbox

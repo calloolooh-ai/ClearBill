@@ -38,7 +38,7 @@ export default function BillsPage() {
             const label = bundle.document.provider ?? bundle.document.fileName;
             return (
               <motion.div key={bundle.document.id} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: i * 0.03 }}>
-                <Card className="rounded-3xl border-border/60">
+                <Card className="rounded-3xl">
                   <CardContent className="flex items-center justify-between gap-4 p-5">
                     <Link href={`/dashboard?bill=${bundle.document.id}`} className="min-w-0 flex-1">
                       <p className="truncate font-medium">{label}</p>

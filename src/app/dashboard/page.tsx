@@ -198,7 +198,7 @@ function DashboardBody({ document, baseExplanation, suggestions, feeAlerts }: Da
         </div>
 
         <div className="space-y-6 lg:col-span-2">
-          <Card className="rounded-3xl border-border/60">
+          <Card className="rounded-3xl">
             <CardContent className="p-6">
               <h3 className="mb-2 text-lg font-medium tracking-tight">Spending Breakdown</h3>
               <SpendingPieChart categoryTotals={categoryTotals} />

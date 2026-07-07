@@ -18,7 +18,7 @@ export function SuggestionsPanel({ suggestions }: { suggestions: AiSuggestion[] 
   if (suggestions.length === 0) return null;
 
   return (
-    <Card className="rounded-3xl border-border/60">
+    <Card className="rounded-3xl">
       <CardContent className="space-y-4 p-6">
         <h3 className="text-lg font-medium tracking-tight">AI Suggestions</h3>
         <div className="space-y-3">

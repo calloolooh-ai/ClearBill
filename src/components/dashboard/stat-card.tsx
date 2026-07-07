@@ -20,7 +20,7 @@ export function StatCard({ label, value, icon: Icon, tone = "default", delay = 0
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
     >
-      <Card className="rounded-3xl border-border/60">
+      <Card className="rounded-3xl">
         <CardContent className="flex items-center gap-4 p-6">
           <div
             className={cn(
@@ -31,7 +31,7 @@ export function StatCard({ label, value, icon: Icon, tone = "default", delay = 0
             <Icon className="size-5" />
           </div>
           <div>
-            <p className="text-2xl font-semibold tracking-tight">{value}</p>
+            <p className="font-heading text-2xl font-semibold tracking-tight tabular-nums">{value}</p>
             <p className="text-sm text-muted-foreground">{label}</p>
           </div>
         </CardContent>

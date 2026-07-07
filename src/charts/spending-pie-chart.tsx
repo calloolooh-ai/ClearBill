@@ -20,8 +20,8 @@ const COLORS = [
   "var(--chart-3)",
   "var(--chart-4)",
   "var(--chart-5)",
-  "#5aa9e6",
-  "#f2a65a",
+  "#ff8fb1",
+  "#8bd450",
 ];
 
 interface SpendingPieChartProps {

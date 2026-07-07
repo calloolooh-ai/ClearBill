@@ -1,28 +1,44 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Receipt } from "lucide-react";
-import { ThemeToggle } from "./theme-toggle";
+import { cn } from "@/lib/utils";
+
+const LINKS = [
+  { href: "/", label: "Upload" },
+  { href: "/compare", label: "Compare" },
+  { href: "/bills", label: "My Bills" },
+];
 
 export function Navbar() {
+  const pathname = usePathname();
+
   return (
-    <header className="sticky top-0 z-50 border-b border-border/60 bg-background/70 backdrop-blur-xl print:hidden">
+    <header className="sticky top-0 z-50 border-b-2 border-foreground bg-background print:hidden">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="flex size-8 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
-            <Receipt className="size-4" />
+        <Link href="/" className="flex items-center gap-2.5 font-heading text-xl font-semibold tracking-tight">
+          <span className="flex size-9 -rotate-6 items-center justify-center rounded-2xl border-2 border-foreground bg-primary text-primary-foreground shadow-[3px_3px_0_0_var(--foreground)]">
+            <Receipt className="size-4.5" />
           </span>
-          <span className="text-lg">ClearBill</span>
+          ClearBill
         </Link>
-        <nav className="flex items-center gap-1 text-sm">
-          <Link href="/" className="rounded-full px-4 py-2 text-muted-foreground transition hover:text-foreground">
-            Upload
-          </Link>
-          <Link href="/compare" className="rounded-full px-4 py-2 text-muted-foreground transition hover:text-foreground">
-            Compare
-          </Link>
-          <Link href="/bills" className="rounded-full px-4 py-2 text-muted-foreground transition hover:text-foreground">
-            My Bills
-          </Link>
-          <ThemeToggle />
+        <nav className="flex items-center gap-1 text-sm font-semibold">
+          {LINKS.map((link) => {
+            const active = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={cn(
+                  "rounded-full px-4 py-2 transition-colors",
+                  active ? "bg-secondary text-secondary-foreground" : "text-muted-foreground hover:bg-muted hover:text-foreground",
+                )}
+              >
+                {link.label}
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </header>

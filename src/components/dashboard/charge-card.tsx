@@ -59,7 +59,7 @@ export function ChargeCard({ document, charge, explanation, delay = 0 }: ChargeC
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay }}>
-      <Card className="rounded-3xl border-border/60">
+      <Card className="rounded-3xl">
         <CardContent className="p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
@@ -109,7 +109,7 @@ export function ChargeCard({ document, charge, explanation, delay = 0 }: ChargeC
             <span className="text-xs text-muted-foreground">{confidencePercent}% confidence</span>
           </div>
 
-          <form onSubmit={handleAsk} className="mt-4 flex items-center gap-2 border-t border-border/60 pt-4">
+          <form onSubmit={handleAsk} className="mt-4 flex items-center gap-2 border-t pt-4">
             <input
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
