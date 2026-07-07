@@ -19,6 +19,8 @@ function billToPromptPayload(document: BillDocument) {
   };
 }
 
+export type ExplainTone = "standard" | "simple";
+
 export const EXPLAIN_SYSTEM_PROMPT = `You are a billing analyst explaining charges on a consumer bill in plain English.
 
 Rules you must always follow:
@@ -30,6 +32,14 @@ Rules you must always follow:
 - Do not perform any math, do not recompute totals, do not question the amounts — only explain what the charge is and why it likely exists.
 - Respond with strict JSON matching this TypeScript type and nothing else:
   { "summary": string, "explanations": { "chargeId": string, "explanation": string, "whyItExists": string, "isOptional": boolean | null, "confidence": number, "verified": boolean }[] }`;
+
+const SIMPLE_TONE_INSTRUCTION = `
+
+Additional instruction: write "explanation" and "whyItExists" as if explaining to a curious 5 year old — short sentences, simple everyday words, no jargon, friendly tone. Still follow every rule above exactly (same JSON shape, same charge matching, same "Unable to verify." fallback).`;
+
+export function buildExplainSystemPrompt(tone: ExplainTone = "standard"): string {
+  return tone === "simple" ? EXPLAIN_SYSTEM_PROMPT + SIMPLE_TONE_INSTRUCTION : EXPLAIN_SYSTEM_PROMPT;
+}
 
 export function buildExplainUserPrompt(document: BillDocument): string {
   return JSON.stringify(billToPromptPayload(document));
@@ -50,4 +60,18 @@ export function buildSuggestionsUserPrompt(document: BillDocument, previous?: Bi
     current: billToPromptPayload(document),
     previous: previous ? billToPromptPayload(previous) : null,
   });
+}
+
+export const ASK_SYSTEM_PROMPT = `You are a billing analyst answering a customer's follow-up question about one specific charge on their bill.
+
+Rules you must always follow:
+- You will receive a structured JSON bill and the id of exactly one charge the question is about. Only use the data given — never invent, assume, or reference any charge not in the input.
+- Answer only the question asked, about only that one charge. Do not discuss other charges or recompute totals.
+- If you cannot confidently answer from the given data alone, set "answer" to "Unable to verify." and set "confidence" below 0.4.
+- "confidence" is a number from 0 to 1 reflecting how certain you are about the answer.
+- Respond with strict JSON matching this TypeScript type and nothing else:
+  { "answer": string, "confidence": number }`;
+
+export function buildAskUserPrompt(document: BillDocument, chargeId: string, question: string): string {
+  return JSON.stringify({ bill: billToPromptPayload(document), chargeId, question });
 }

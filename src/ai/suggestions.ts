@@ -12,7 +12,7 @@ export async function generateSuggestions(
 
   const completion = await client.chat.completions.create({
     model: GROQ_MODEL,
-    temperature: 0.4,
+    temperature: 0,
     response_format: { type: "json_object" },
     messages: [
       { role: "system", content: SUGGESTIONS_SYSTEM_PROMPT },

@@ -1,7 +1,7 @@
 import type { BillDocument } from "@/types/bill";
 import type { BillExplanationResult, ChargeExplanation } from "@/types/ai";
 import { getGroqClient, GROQ_MODEL } from "./groqClient";
-import { EXPLAIN_SYSTEM_PROMPT, buildExplainUserPrompt } from "./prompts";
+import { buildExplainSystemPrompt, buildExplainUserPrompt, type ExplainTone } from "./prompts";
 import { ExplainResponseSchema } from "./schema";
 
 function fallbackExplanation(chargeId: string): ChargeExplanation {
@@ -16,20 +16,30 @@ function fallbackExplanation(chargeId: string): ChargeExplanation {
 }
 
 /** Calls Groq with structured JSON only. Guarantees one explanation per input charge — never invents new ones. */
-export async function explainCharges(document: BillDocument): Promise<BillExplanationResult> {
-  const client = getGroqClient();
+export async function explainCharges(
+  document: BillDocument,
+  tone: ExplainTone = "standard",
+): Promise<BillExplanationResult> {
+  let raw = "{}";
 
-  const completion = await client.chat.completions.create({
-    model: GROQ_MODEL,
-    temperature: 0.2,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: EXPLAIN_SYSTEM_PROMPT },
-      { role: "user", content: buildExplainUserPrompt(document) },
-    ],
-  });
+  try {
+    const client = getGroqClient();
+    const completion = await client.chat.completions.create({
+      model: GROQ_MODEL,
+      temperature: 0,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: buildExplainSystemPrompt(tone) },
+        { role: "user", content: buildExplainUserPrompt(document) },
+      ],
+    });
+    raw = completion.choices[0]?.message?.content ?? "{}";
+  } catch {
+    // Network failure, timeout, or rate limit — fall through and treat as an
+    // empty response so every charge still gets an "Unable to verify." explanation
+    // instead of the whole upload flow throwing.
+  }
 
-  const raw = completion.choices[0]?.message?.content ?? "{}";
   const parsed = ExplainResponseSchema.safeParse(JSON.parse(raw));
 
   const validChargeIds = new Set(document.charges.map((c) => c.id));

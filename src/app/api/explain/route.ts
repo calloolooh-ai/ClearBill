@@ -10,6 +10,7 @@ export const maxDuration = 60;
 const RequestSchema = z.object({
   document: BillDocumentSchema,
   previousDocument: BillDocumentSchema.nullable().optional(),
+  tone: z.enum(["standard", "simple"]).optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -20,11 +21,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: false, error: "Invalid bill document." }, { status: 400 });
   }
 
-  const { document, previousDocument } = parsed.data;
+  const { document, previousDocument, tone } = parsed.data;
 
   try {
     const [explanation, suggestions] = await Promise.all([
-      explainCharges(document),
+      explainCharges(document, tone),
       generateSuggestions(document, previousDocument ?? undefined),
     ]);
     return NextResponse.json({ success: true, explanation, suggestions });

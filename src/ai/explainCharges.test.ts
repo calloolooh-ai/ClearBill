@@ -97,4 +97,27 @@ describe("explainCharges", () => {
     expect(result.explanations.every((e) => e.explanation === "Unable to verify.")).toBe(true);
     expect(result.summary).toBe("Unable to verify.");
   });
+
+  it("calls Groq with temperature 0 so the same bill produces the same explanations every time", async () => {
+    mockResponse({
+      summary: "Two charges this month.",
+      explanations: [
+        { chargeId: "c1", explanation: "Your monthly data plan.", whyItExists: "Base service.", isOptional: false, confidence: 0.9, verified: true },
+        { chargeId: "c2", explanation: "Charged for a late payment.", whyItExists: "Payment was late.", isOptional: false, confidence: 0.8, verified: true },
+      ],
+    });
+
+    await explainCharges(document());
+    expect(mockCreate).toHaveBeenCalledWith(expect.objectContaining({ temperature: 0 }));
+  });
+
+  it("falls back gracefully instead of throwing when the Groq call itself fails (network/timeout/rate limit)", async () => {
+    mockCreate.mockRejectedValueOnce(new Error("network timeout"));
+
+    const result = await explainCharges(document());
+    expect(result.explanations).toHaveLength(2);
+    expect(result.explanations.every((e) => e.explanation === "Unable to verify.")).toBe(true);
+    expect(result.explanations.every((e) => e.confidence === 0)).toBe(true);
+    expect(result.summary).toBe("Unable to verify.");
+  });
 });
