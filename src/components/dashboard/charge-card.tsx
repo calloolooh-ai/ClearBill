@@ -1,14 +1,18 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
+import { Send, Loader2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { formatCurrency } from "@/utils/formatCurrency";
-import type { Charge } from "@/types/bill";
+import type { BillDocument, Charge } from "@/types/bill";
 import type { ChargeExplanation } from "@/types/ai";
 import { cn } from "@/lib/utils";
 
 interface ChargeCardProps {
+  document: BillDocument;
   charge: Charge;
   explanation?: ChargeExplanation;
   delay?: number;
@@ -24,9 +28,34 @@ const CATEGORY_LABEL: Record<Charge["category"], string> = {
   other: "Other",
 };
 
-export function ChargeCard({ charge, explanation, delay = 0 }: ChargeCardProps) {
+export function ChargeCard({ document, charge, explanation, delay = 0 }: ChargeCardProps) {
   const confidencePercent = Math.round((explanation?.confidence ?? 0) * 100);
   const isLowConfidence = !explanation || explanation.confidence < 0.4;
+
+  const [question, setQuestion] = useState("");
+  const [answer, setAnswer] = useState<string | null>(null);
+  const [asking, setAsking] = useState(false);
+
+  async function handleAsk(e: React.FormEvent) {
+    e.preventDefault();
+    if (!question.trim() || asking) return;
+
+    setAsking(true);
+    setAnswer(null);
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ document, chargeId: charge.id, question: question.trim() }),
+      });
+      const json = await res.json();
+      setAnswer(json.success ? json.answer : "Unable to verify.");
+    } catch {
+      setAnswer("Unable to verify.");
+    } finally {
+      setAsking(false);
+    }
+  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.35, delay }}>
@@ -79,6 +108,20 @@ export function ChargeCard({ charge, explanation, delay = 0 }: ChargeCardProps) 
             </div>
             <span className="text-xs text-muted-foreground">{confidencePercent}% confidence</span>
           </div>
+
+          <form onSubmit={handleAsk} className="mt-4 flex items-center gap-2 border-t border-border/60 pt-4">
+            <input
+              value={question}
+              onChange={(e) => setQuestion(e.target.value)}
+              placeholder="Ask about this charge…"
+              disabled={asking}
+              className="h-8 flex-1 rounded-full border border-border bg-transparent px-3 text-sm outline-none placeholder:text-muted-foreground focus-visible:border-ring"
+            />
+            <Button type="submit" size="icon-sm" variant="outline" disabled={asking || !question.trim()}>
+              {asking ? <Loader2 className="animate-spin" /> : <Send />}
+            </Button>
+          </form>
+          {answer && <p className="mt-2 text-sm text-muted-foreground">{answer}</p>}
         </CardContent>
       </Card>
     </motion.div>

@@ -22,3 +22,8 @@ export const SuggestionSchema = z.object({
 export const SuggestionsResponseSchema = z.object({
   suggestions: z.array(SuggestionSchema),
 });
+
+export const AskResponseSchema = z.object({
+  answer: z.string(),
+  confidence: z.number().min(0).max(1),
+});
