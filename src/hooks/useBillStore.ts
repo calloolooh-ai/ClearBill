@@ -2,21 +2,15 @@
 
 import { useCallback, useEffect, useState } from "react";
 import type { BillBundle } from "@/types/store";
-
-const STORAGE_KEY = "clearbill.bundles";
+import { BILL_STORAGE_KEY, upsertBundle, removeBundleById, findBundleById, parseStoredBundles } from "@/lib/billStorage";
 
 function readAll(): BillBundle[] {
   if (typeof window === "undefined") return [];
-  try {
-    const raw = window.localStorage.getItem(STORAGE_KEY);
-    return raw ? (JSON.parse(raw) as BillBundle[]) : [];
-  } catch {
-    return [];
-  }
+  return parseStoredBundles(window.localStorage.getItem(BILL_STORAGE_KEY));
 }
 
 function writeAll(bundles: BillBundle[]) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(bundles));
+  window.localStorage.setItem(BILL_STORAGE_KEY, JSON.stringify(bundles));
 }
 
 export function useBillStore() {
@@ -29,7 +23,7 @@ export function useBillStore() {
 
   const addBundle = useCallback((bundle: BillBundle) => {
     setBundles((prev) => {
-      const next = [...prev.filter((b) => b.document.id !== bundle.document.id), bundle];
+      const next = upsertBundle(prev, bundle);
       writeAll(next);
       return next;
     });
@@ -37,14 +31,14 @@ export function useBillStore() {
 
   const removeBundle = useCallback((billId: string) => {
     setBundles((prev) => {
-      const next = prev.filter((b) => b.document.id !== billId);
+      const next = removeBundleById(prev, billId);
       writeAll(next);
       return next;
     });
   }, []);
 
   const getBundle = useCallback(
-    (billId: string) => bundles.find((b) => b.document.id === billId),
+    (billId: string) => findBundleById(bundles, billId),
     [bundles],
   );
 
