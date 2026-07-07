@@ -2,22 +2,59 @@
 
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { Sparkles, ShieldAlert, LineChart, Lock } from "lucide-react";
 import { UploadDropzone } from "@/components/upload/upload-dropzone";
 import { UploadProgress } from "@/components/upload/upload-progress";
 import { useBillUpload } from "@/hooks/useBillUpload";
 import { useBillStore } from "@/hooks/useBillStore";
+import { getSampleBundle } from "@/lib/sampleBill";
+import { findDuplicateBundle } from "@/lib/billStorage";
+
+const FEATURES = [
+  {
+    icon: Sparkles,
+    title: "AI-explained charges",
+    description: "Every line item explained in plain English — never invented, never guessed.",
+  },
+  {
+    icon: ShieldAlert,
+    title: "Fee alerts",
+    description: "Automatically flags late fees, admin fees, duplicates, and unexpected increases.",
+  },
+  {
+    icon: LineChart,
+    title: "Compare over time",
+    description: "Upload multiple bills to see totals, categories, and month-over-month changes.",
+  },
+];
 
 export default function HomePage() {
   const router = useRouter();
-  const { stage, error, upload } = useBillUpload();
-  const { addBundle } = useBillStore();
+  const { stage, upload } = useBillUpload();
+  const { bundles, addBundle } = useBillStore();
 
   async function handleFile(file: File) {
     const bundle = await upload(file);
     if (bundle) {
+      const duplicate = findDuplicateBundle(bundles, bundle.document.fileName, bundle.document.total);
+      if (
+        duplicate &&
+        window.confirm(
+          `You already uploaded "${duplicate.document.fileName}" with the same total. Open the existing bill instead of adding a duplicate?`,
+        )
+      ) {
+        router.push(`/dashboard?bill=${duplicate.document.id}`);
+        return;
+      }
       addBundle(bundle);
       router.push(`/dashboard?bill=${bundle.document.id}`);
     }
+  }
+
+  function handleSampleBill() {
+    const bundle = getSampleBundle();
+    addBundle(bundle);
+    router.push(`/dashboard?bill=${bundle.document.id}`);
   }
 
   return (
@@ -46,7 +83,41 @@ export default function HomePage() {
         className="mt-12"
       >
         <UploadDropzone onFileAccepted={handleFile} disabled={stage === "extracting" || stage === "explaining"} />
-        <UploadProgress stage={stage} error={error} />
+        <UploadProgress stage={stage} />
+
+        <div className="mt-4 text-center">
+          <button
+            type="button"
+            onClick={handleSampleBill}
+            disabled={stage === "extracting" || stage === "explaining"}
+            className="text-sm font-medium text-primary hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            Or try a sample bill →
+          </button>
+        </div>
+
+        <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+          <Lock className="size-3.5" />
+          Your bill stays in your browser — only structured, anonymized data is sent for
+          explanation, nothing is stored on a server.
+        </p>
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3, ease: "easeOut" }}
+        className="mt-20 grid grid-cols-1 gap-6 sm:grid-cols-3"
+      >
+        {FEATURES.map(({ icon: Icon, title, description }) => (
+          <div key={title} className="rounded-2xl border border-border/60 p-5 text-center">
+            <div className="mx-auto flex size-10 items-center justify-center rounded-full bg-primary/10 text-primary">
+              <Icon className="size-5" />
+            </div>
+            <p className="mt-3 font-medium tracking-tight">{title}</p>
+            <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+          </div>
+        ))}
       </motion.div>
     </div>
   );

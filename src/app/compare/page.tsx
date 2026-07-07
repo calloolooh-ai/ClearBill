@@ -10,13 +10,15 @@ import { BillHistoryLineChart } from "@/charts/bill-history-line-chart";
 import { ChargeComparisonChart } from "@/charts/charge-comparison-chart";
 import { useBillStore } from "@/hooks/useBillStore";
 import { useBillUpload } from "@/hooks/useBillUpload";
+import { findDuplicateBundle } from "@/lib/billStorage";
 import { UploadProgress } from "@/components/upload/upload-progress";
 import { formatCurrency, formatPercent } from "@/utils/formatCurrency";
+import { estimateNextMonth } from "@/utils/forecast";
 import type { ComparisonResult } from "@/types/comparison";
 
 export default function ComparePage() {
   const { bundles, addBundle } = useBillStore();
-  const { stage, error, upload } = useBillUpload();
+  const { stage, upload } = useBillUpload();
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [result, setResult] = useState<ComparisonResult | null>(null);
   const [comparing, setComparing] = useState(false);
@@ -28,6 +30,16 @@ export default function ComparePage() {
   async function handleFile(file: File) {
     const bundle = await upload(file);
     if (bundle) {
+      const duplicate = findDuplicateBundle(bundles, bundle.document.fileName, bundle.document.total);
+      if (
+        duplicate &&
+        window.confirm(
+          `You already uploaded "${duplicate.document.fileName}" with the same total. Select the existing bill instead of adding a duplicate?`,
+        )
+      ) {
+        setSelectedIds((prev) => (prev.includes(duplicate.document.id) ? prev : [...prev, duplicate.document.id]));
+        return;
+      }
       addBundle(bundle);
       setSelectedIds((prev) => [...prev, bundle.document.id]);
     }
@@ -67,7 +79,7 @@ export default function ComparePage() {
         <div>
           <h2 className="mb-3 text-lg font-medium tracking-tight">Add a bill</h2>
           <UploadDropzone onFileAccepted={handleFile} disabled={stage === "extracting" || stage === "explaining"} />
-          <UploadProgress stage={stage} error={error} />
+          <UploadProgress stage={stage} />
         </div>
 
         <div>
@@ -85,7 +97,7 @@ export default function ComparePage() {
 
       {result && (
         <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} className="mt-12 space-y-8">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Card className="rounded-3xl border-border/60">
               <CardContent className="p-6">
                 <p className="text-sm text-muted-foreground">Month-over-month change</p>
@@ -106,6 +118,20 @@ export default function ComparePage() {
                 ) : (
                   <p className="mt-1 text-2xl font-semibold">None</p>
                 )}
+              </CardContent>
+            </Card>
+            <Card className="rounded-3xl border-border/60">
+              <CardContent className="p-6">
+                <p className="text-sm text-muted-foreground">Next month estimate</p>
+                {(() => {
+                  const estimate = estimateNextMonth(result.bills);
+                  return estimate === null ? (
+                    <p className="mt-1 text-2xl font-semibold">—</p>
+                  ) : (
+                    <p className="mt-1 text-2xl font-semibold">{formatCurrency(estimate)}</p>
+                  );
+                })()}
+                <p className="text-sm text-muted-foreground">Based on trend across selected bills</p>
               </CardContent>
             </Card>
           </div>
