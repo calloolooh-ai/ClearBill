@@ -18,9 +18,8 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "ClearBill — Understand every charge on your bill",
-  description:
-    "Upload any bill and ClearBill extracts every charge, explains it in plain English, and flags fees you shouldn't be paying.",
+  title: "ClearBill",
+  description: "figure out what's on your bill",
 };
 
 export default function RootLayout({
