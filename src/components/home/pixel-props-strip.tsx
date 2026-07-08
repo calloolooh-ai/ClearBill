@@ -8,7 +8,6 @@ const ROWS = 17;
 
 const INK = "#2b2118";
 const CORAL = "#ff6b4a";
-const CORAL_DARK = "#e0553a";
 const MINT = "#3ddc97";
 const MINT_DARK = "#28b47b";
 const YELLOW = "#ffc93c";
@@ -39,22 +38,64 @@ export function PixelPropsStrip() {
 
     const gy = 14;
 
-    function piggyBank(bx: number, bob: number) {
-      const y = gy + bob;
-      cell(bx + 1, y - 1, 1, 1, CORAL_DARK);
-      cell(bx + 8, y - 1, 1, 1, CORAL_DARK);
-      cell(bx, y - 7, 10, 6, INK);
-      cell(bx + 1, y - 8, 8, 1, INK);
-      cell(bx + 1, y - 7, 8, 5, CORAL);
-      cell(bx + 2, y - 8, 6, 1, CORAL);
-      cell(bx + 1, y - 6, 8, 2, CORAL_DARK, 0.35);
-      cell(bx + 8, y - 6, 2, 2, INK);
-      cell(bx + 8.4, y - 5.7, 1.2, 1.2, CORAL);
-      cell(bx - 1, y - 7, 2, 2, INK);
-      cell(bx - 0.6, y - 6.6, 1, 1, CORAL);
-      cell(bx + 4, y - 8.5, 2, 1, INK);
-      cell(bx + 4.4, y - 8.2, 1.2, 0.5, YELLOW);
-      cell(bx + 2.5, y - 5.5, 0.8, 0.8, INK);
+    const DOLLAR_GLYPH = [
+      "..#..",
+      ".###.",
+      "#.#..",
+      "#.#..",
+      ".###.",
+      "..#.#",
+      "..#.#",
+      ".###.",
+      "..#..",
+    ];
+
+    function dollarCoin(bx: number, bob: number) {
+      const cy = gy - 7 + bob;
+
+      cell(bx + 2, gy - 0.5, 8, 1, INK, 0.15);
+
+      const outline = [
+        [4, 4],
+        [2, 8],
+        [1, 10],
+        [0, 12],
+        [0, 12],
+        [0, 12],
+        [0, 12],
+        [0, 12],
+        [0, 12],
+        [1, 10],
+        [2, 8],
+        [4, 4],
+      ] as const;
+      outline.forEach(([offset, width], i) => {
+        cell(bx + offset, cy - 6 + i, width, 1, INK);
+      });
+
+      const inner = [
+        [5, 2],
+        [3, 6],
+        [2, 8],
+        [1, 10],
+        [1, 10],
+        [1, 10],
+        [1, 10],
+        [1, 10],
+        [1, 10],
+        [2, 8],
+        [3, 6],
+        [5, 2],
+      ] as const;
+      inner.forEach(([offset, width], i) => {
+        cell(bx + offset, cy - 6 + i + 0.5, width, 1, i > 7 ? YELLOW_DARK : YELLOW);
+      });
+
+      DOLLAR_GLYPH.forEach((row, r) => {
+        for (let c = 0; c < row.length; c++) {
+          if (row[c] === "#") cell(bx + 3.5 + c, cy - 4 + r, 1, 1, INK);
+        }
+      });
     }
 
     function moneyTree(bx: number, sway: number) {
@@ -136,7 +177,7 @@ export function PixelPropsStrip() {
       const bob2 = Math.sin(t / 1400 + 2) * 0.4;
       const blinkOn = Math.sin(t / 500) > 0;
 
-      piggyBank(3, bob1);
+      dollarCoin(3, bob1);
       grassTuft(17, 3);
       moneyTree(23, sway);
       grassTuft(44, 2);
