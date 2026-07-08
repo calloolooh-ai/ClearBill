@@ -12,7 +12,7 @@ interface BillPickerProps {
 
 export function BillPicker({ bundles, selectedIds, onToggle }: BillPickerProps) {
   if (bundles.length === 0) {
-    return <p className="text-sm text-muted-foreground">Upload at least two bills to compare them.</p>;
+    return <p className="text-sm text-muted-foreground">upload 2+ bills first</p>;
   }
 
   return (

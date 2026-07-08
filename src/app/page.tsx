@@ -14,20 +14,20 @@ import { cn } from "@/lib/utils";
 const FEATURES = [
   {
     icon: Sparkles,
-    title: "AI-explained charges",
-    description: "Every line item explained in plain English — never invented, never guessed.",
+    title: "Explains charges",
+    description: "Plain English, no guessing.",
     accent: "bg-primary/15 text-primary",
   },
   {
     icon: ShieldAlert,
-    title: "Fee alerts",
-    description: "Automatically flags late fees, admin fees, duplicates, and unexpected increases.",
+    title: "Flags fees",
+    description: "Late fees, dupes, price hikes.",
     accent: "bg-destructive/15 text-destructive",
   },
   {
     icon: LineChart,
-    title: "Compare over time",
-    description: "Upload multiple bills to see totals, categories, and month-over-month changes.",
+    title: "Tracks trends",
+    description: "See what changed each month.",
     accent: "bg-accent text-accent-foreground",
   },
 ];
@@ -69,15 +69,9 @@ export default function HomePage() {
         transition={{ duration: 0.5, ease: "easeOut" }}
         className="text-center"
       >
-        <h1 className="text-5xl font-semibold tracking-tight sm:text-6xl">
-          Every charge,
-          <br />
-          <span className="text-primary">finally explained.</span>
+        <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+          what&apos;s this <span className="text-primary">charge</span> even for
         </h1>
-        <p className="mx-auto mt-6 max-w-xl text-lg text-muted-foreground">
-          Upload any bill. ClearBill extracts every line item, explains it in plain English,
-          and flags fees you shouldn&apos;t be paying.
-        </p>
       </motion.div>
 
       <motion.div
@@ -100,10 +94,9 @@ export default function HomePage() {
           </button>
         </div>
 
-        <p className="mt-6 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
+        <p className="mt-5 flex items-center justify-center gap-1.5 text-center text-xs text-muted-foreground">
           <Lock className="size-3.5" />
-          Your bill stays in your browser — only structured, anonymized data is sent for
-          explanation, nothing is stored on a server.
+          stays on your device
         </p>
       </motion.div>
 

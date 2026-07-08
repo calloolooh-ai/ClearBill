@@ -21,13 +21,10 @@ export default function BillsPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-16">
       <h1 className="text-3xl font-semibold tracking-tight">My Bills</h1>
-      <p className="mt-2 text-muted-foreground">
-        Every bill you&apos;ve uploaded on this device, stored locally in your browser.
-      </p>
 
       {bundles.length === 0 ? (
         <div className="mt-12 text-center">
-          <p className="text-muted-foreground">You haven&apos;t uploaded any bills yet.</p>
+          <p className="text-muted-foreground">nothing here yet</p>
           <Link href="/" className="mt-4 inline-block rounded-full bg-primary px-6 py-2.5 text-sm font-medium text-primary-foreground">
             Upload a bill
           </Link>

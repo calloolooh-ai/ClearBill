@@ -70,9 +70,6 @@ export default function ComparePage() {
     <div className="mx-auto max-w-4xl px-6 py-16">
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
         <h1 className="text-4xl font-semibold tracking-tight">Compare bills</h1>
-        <p className="mt-3 text-muted-foreground">
-          Upload multiple bills to track totals, categories, and month-over-month changes.
-        </p>
       </motion.div>
 
       <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-2">
