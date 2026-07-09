@@ -14,16 +14,16 @@ const RequestSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const body = await request.json();
-  const parsed = RequestSchema.safeParse(body);
-
-  if (!parsed.success) {
-    return NextResponse.json({ success: false, error: "Invalid bill document." }, { status: 400 });
-  }
-
-  const { document, previousDocument, tone } = parsed.data;
-
   try {
+    const body = await request.json();
+    const parsed = RequestSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json({ success: false, error: "Invalid bill document." }, { status: 400 });
+    }
+
+    const { document, previousDocument, tone } = parsed.data;
+
     const [explanation, suggestions] = await Promise.all([
       explainCharges(document, tone),
       generateSuggestions(document, previousDocument ?? undefined),

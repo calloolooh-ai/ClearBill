@@ -10,6 +10,18 @@ import { EXPLAIN_CACHE_KEY, parseExplainCache, withCachedExplanation, getCachedE
 
 export type UploadStage = "idle" | "extracting" | "explaining" | "done" | "error";
 
+async function parseJsonResponse(res: Response, fallbackMessage: string) {
+  const contentType = res.headers.get("content-type") ?? "";
+  if (!contentType.includes("application/json")) {
+    throw new Error(
+      res.status === 413
+        ? "That file is too large for the server to accept. Try a smaller file or a lower-resolution scan."
+        : `${fallbackMessage} (server returned an unexpected response, status ${res.status}).`,
+    );
+  }
+  return res.json();
+}
+
 interface UploadState {
   stage: UploadStage;
   error: string | null;
@@ -27,7 +39,7 @@ export function useBillUpload() {
       formData.append("file", file);
 
       const parseRes = await fetch("/api/parse", { method: "POST", body: formData });
-      const parseJson = await parseRes.json();
+      const parseJson = await parseJsonResponse(parseRes, "Failed to parse bill.");
       if (!parseRes.ok || !parseJson.success) {
         throw new Error(parseJson.error ?? "Failed to parse bill.");
       }
@@ -50,7 +62,7 @@ export function useBillUpload() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ document, previousDocument: previousDocument ?? null }),
         });
-        const explainJson = await explainRes.json();
+        const explainJson = await parseJsonResponse(explainRes, "Failed to generate explanations.");
         if (!explainRes.ok || !explainJson.success) {
           throw new Error(explainJson.error ?? "Failed to generate explanations.");
         }
